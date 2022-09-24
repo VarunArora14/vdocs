@@ -12,7 +12,7 @@ const documentSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  created: {
+  createdAt: {
     type: Number, // client passes in millisecondsSinceEpoch
     required: true,
   },

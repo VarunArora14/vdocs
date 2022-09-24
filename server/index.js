@@ -1,8 +1,9 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
 const authRouter = require("./routes/router");
-const dbUrl = require("./db_url");
+const dbUrl = require("./hidden/db_url");
 const cors = require("cors"); // xml http request error without this line
+const documentRouter = require("./routes/document");
 // const mongoose = require("mongoose");
 
 // initialise express and store in app variable
@@ -11,6 +12,7 @@ const app = express();
 app.use(cors()); // use cors() not cors otherwise same error
 app.use(express.json()); // parse json data from the body of the request, otherwise we cannot get userName and others from the body of the request, initialize it before the routes
 app.use(authRouter); // add this to the app otherwise the API wouldnt work as it needs to know where to look for the API
+app.use(documentRouter); // router for documents
 const PORT = process.env.PORT || 5000; // our server running on port 3000 so we run 5000 here
 
 mongoose

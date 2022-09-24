@@ -23,6 +23,7 @@ class LoginScreen extends ConsumerWidget {
       navigator.replace('/'); // simply pass the route name, replace works like pushReplacement
     } else {
       sMessenger.showSnackBar(SnackBar(content: Text(errorModel.error!)));
+      debugPrint('signInWithGoogle method invoked');
     }
   }
 

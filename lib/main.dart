@@ -49,7 +49,6 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ThemeData(primarySwatch: Colors.blue),
       routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
         final user = ref.watch(userProvider); // watch the userProvider state here
-        // debugPrint(user.email ?? 'nil');
         if (user != null && user.token.isNotEmpty) {
           // if user is not null and token is not empty, means user is logged in
           return loggedinRoute;
@@ -64,3 +63,6 @@ class _MyAppState extends ConsumerState<MyApp> {
 
 // todo: deployed on localhost:3000 on https://console.cloud.google.com/
 // see the the video of gdocs clone if any problem with running app on cloud occurs
+
+// run 2 commands  -  `flutter run -d chrome --web-port=3000`
+// `npm run dev`(in server folder, which runs at port 5000)

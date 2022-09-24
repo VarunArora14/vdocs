@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:vdocs/common/widgets/loader.dart';
 import 'package:vdocs/constants/colors.dart';
+import 'package:vdocs/models/document_model.dart';
+import 'package:vdocs/models/error_model.dart';
 import 'package:vdocs/repository/auth_repository.dart';
+import 'package:vdocs/repository/document_repo.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -13,8 +18,26 @@ class HomeScreen extends ConsumerWidget {
     // call the loggedOutRoute
   }
 
+  void createDocument(BuildContext context, WidgetRef ref) async {
+    // async as we use the createDocument method which is async
+    String token = ref.read(userProvider)!.token; //token from userProvider, cannot be null as we on home screen
+    final navigator = Routemaster.of(context);
+    final snackbar = ScaffoldMessenger.of(context); // to avoid putting between async and await block
+
+    final errorModel = await ref.read(documentRepoProvider).createDocument(token); // call createDocument method
+
+    if (errorModel.data != null) {
+      // it has the new doc created
+      navigator.push('/document/${errorModel.data.id}'); // id of document from DocumentModel
+    } else {
+      snackbar.showSnackBar(SnackBar(content: Text(errorModel.error.toString()))); // error from ErrorModel
+      debugPrint('createDocument method invoked');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final String token = ref.watch(userProvider)!.token; // token from userProvider, can't be null on home screen
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -22,7 +45,7 @@ class HomeScreen extends ConsumerWidget {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => createDocument(context, ref),
             icon: Icon(
               Icons.add, //  add new document
               color: kBlackColor,
@@ -37,10 +60,34 @@ class HomeScreen extends ConsumerWidget {
           )
         ],
       ),
-      body: Center(
-        child: Text(ref.watch(userProvider)!.uid),
-        // use the userProvider to get the user data and authProvider for auth related stuff
+      body: FutureBuilder<ErrorModel>(
+        future: ref.watch(documentRepoProvider).getDocuments(token),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Loader();
+          }
+          return ListView.builder(
+            itemCount: snapshot.data!.data.length ?? 0, // snapshot data -> errorModel -> data -> list of documents
+            itemBuilder: (BuildContext context, int index) {
+              // get particular documents
+              DocumentModel document = snapshot.data!.data[index];
+              return SizedBox(
+                height: 50,
+                child: Card(
+                  child: Center(
+                    child: Text(
+                      document.title,
+                      style: TextStyle(fontSize: 17),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     ));
   }
 }
+
+// can use futureprovider to get data from api and use it in the build method instead of future builder
