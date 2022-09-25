@@ -15,7 +15,7 @@ documentRouter.post("/doc/create", auth, async (req, res) => {
     });
     // save the document to the database
     document = await document.save();
-    res.json({ document });
+    res.json(document);
     console.log(document);
   } catch (e) {
     res.status(500).json({ error: e.message });

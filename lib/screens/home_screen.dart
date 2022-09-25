@@ -18,6 +18,7 @@ class HomeScreen extends ConsumerWidget {
     // call the loggedOutRoute
   }
 
+  /// create document using user token and route to that url else show snackbar
   void createDocument(BuildContext context, WidgetRef ref) async {
     // async as we use the createDocument method which is async
     String token = ref.read(userProvider)!.token; //token from userProvider, cannot be null as we on home screen
@@ -35,6 +36,12 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 
+  /// go to the document screen based on card clicked
+  void navigateToDocument(BuildContext context, String docId) {
+    Routemaster.of(context).push('/document/$docId');
+    // push instead of replace to get access to back button
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String token = ref.watch(userProvider)!.token; // token from userProvider, can't be null on home screen
@@ -46,14 +53,14 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () => createDocument(context, ref),
-            icon: Icon(
+            icon: const Icon(
               Icons.add, //  add new document
               color: kBlackColor,
             ),
           ),
           IconButton(
             onPressed: () => signOut(ref),
-            icon: Icon(
+            icon: const Icon(
               Icons.logout, // logout user
               color: kRedColor,
             ),
@@ -66,23 +73,35 @@ class HomeScreen extends ConsumerWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Loader();
           }
-          return ListView.builder(
-            itemCount: snapshot.data!.data.length ?? 0, // snapshot data -> errorModel -> data -> list of documents
-            itemBuilder: (BuildContext context, int index) {
-              // get particular documents
-              DocumentModel document = snapshot.data!.data[index];
-              return SizedBox(
-                height: 50,
-                child: Card(
-                  child: Center(
-                    child: Text(
-                      document.title,
-                      style: TextStyle(fontSize: 17),
+          return Center(
+            child: Container(
+              margin: EdgeInsets.only(top: 20),
+              width: 600,
+              child: ListView.builder(
+                itemCount: snapshot.data!.data == null
+                    ? 0
+                    : snapshot.data!.data.length, // snapshot data -> errorModel -> data -> list of documents
+                itemBuilder: (BuildContext context, int index) {
+                  // get particular documents
+                  DocumentModel document = snapshot.data!.data[index];
+                  // use inkwell for splash effect over each document
+                  return InkWell(
+                    onTap: () => navigateToDocument(context, document.id),
+                    child: SizedBox(
+                      height: 50,
+                      child: Card(
+                        child: Center(
+                          child: Text(
+                            document.title,
+                            style: const TextStyle(fontSize: 17),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ),
           );
         },
       ),

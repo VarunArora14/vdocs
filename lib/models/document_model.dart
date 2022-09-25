@@ -36,7 +36,7 @@ class DocumentModel {
 
   String toJson() => json.encode(toMap());
 
-  factory DocumentModel.fromJson(String source) => DocumentModel.fromMap(json.decode(source)['document']);
+  factory DocumentModel.fromJson(String source) => DocumentModel.fromMap(json.decode(source));
   // the schema has {"document":{"uid":"631f82424b900d002c1ae46d","createdAt":1664021264435,"title":"Untitled
 // document","content":[],"_id":"632ef310275d376c46b3444a","__v":0}}
 }

@@ -39,7 +39,6 @@ class DocumentRepo {
           },
         ),
       );
-      debugPrint(res.body.toString());
       switch (res.statusCode) {
         case 200:
           error = ErrorModel(error: null, data: DocumentModel.fromJson(res.body)); // get from document.js
@@ -69,24 +68,15 @@ class DocumentRepo {
           'x-auth-token': token,
         },
       );
-      debugPrint('res body without encoding and status code is ${res.statusCode}');
-      // debugPrint(res.body.toString());
       switch (res.statusCode) {
         case 200:
           List<DocumentModel> docs = [];
           // list of documents from response which returns all docs of current user
           final decodedBody = jsonDecode(res.body);
-          for (int i = 0; i < jsonDecode(res.body).length; i++) {
-            docs.add(
-              DocumentModel.fromJson(jsonEncode(
-                jsonDecode(res.body)[i], // contains ith document decoded from string
-                // fromJson takes String so we have to encode each document again
-              )),
-            );
-          }
-          debugPrint(docs.length.toString());
-          for (int i = 0; i < docs.length; i++) {
-            debugPrint(docs[i].title);
+          for (int i = 0; i < decodedBody.length; i++) {
+            String docString = jsonEncode(decodedBody[i]);
+            DocumentModel currDoc = DocumentModel.fromJson(docString);
+            docs.add(currDoc);
           }
           error = ErrorModel(error: null, data: docs); // save the docs in the error model
           break;
@@ -96,6 +86,7 @@ class DocumentRepo {
       }
     } catch (e) {
       error = ErrorModel(error: e.toString(), data: null);
+      debugPrint(e.toString());
       debugPrint('catch block of document repo create document');
     }
     return error;
