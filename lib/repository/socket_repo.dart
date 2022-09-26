@@ -11,4 +11,14 @@ class SocketRepo {
     _socketClient.emit('join', roomId); // keep roomId same as documentId
     // calls the io.on() method in index.js
   }
+
+  void typing(Map<String, dynamic> data) {
+    _socketClient.emit('typing', data); // pass data to 'typing' event
+  }
+
+  void changeListener(Function(Map<String, dynamic>) func) {
+    // here we have to take changed data and pass it to quill controller which we can't access here
+    // we call the parameter func to report the changes to the document
+    _socketClient.on('changes', (data) => func(data));
+  }
 }

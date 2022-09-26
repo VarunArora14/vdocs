@@ -29,9 +29,15 @@ mongoose
 io.on("connection", (s) => {
   s.on("join", (documentId) => {
     s.join(documentId); // join the room
-    console.log("joined room" + documentId);
+    console.log("joined room " + documentId);
   });
   // console.log("connected to socket" + s.id); // s is the socket passed to the function
+
+  s.on("typing", (data) => {
+    // we want to send the data to all the users in same room except the current user making changes to it
+    s.broadcast.to(data.room).emit("changes", data); // broadcast to all the users in the room
+    // here we send data from server to client side
+  });
 });
 
 // here "0.0.0.0" means it can be accessed from any device on the network
