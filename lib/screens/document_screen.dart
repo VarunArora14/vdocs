@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill; // otherwise text.dart interferes
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:vdocs/common/widgets/loader.dart';
 import 'package:vdocs/constants/colors.dart';
 import 'package:vdocs/models/document_model.dart';
@@ -8,6 +12,7 @@ import 'package:vdocs/models/error_model.dart';
 import 'package:vdocs/repository/auth_repository.dart';
 import 'package:vdocs/repository/document_repo.dart';
 import 'package:vdocs/repository/socket_repo.dart';
+import 'package:vdocs/screens/home_screen.dart';
 
 class DocumentScreen extends ConsumerStatefulWidget {
   final String id; // unique for each document
@@ -43,6 +48,15 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
         quill.ChangeSource.REMOTE,
       );
       // it calls notifyListeners() which calls build() again so no need setstate here
+    });
+
+    // calling it here as we want autoSave to work throughout and not while typing only
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      // call below method every 2 seconds to update
+      socketRepo.autoSave(<String, dynamic>{
+        'delta': quillController?.document.toDelta(), // send entire doc as we handle it in index.js
+        'room': widget.id
+      });
     });
   }
 
@@ -114,7 +128,19 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(backgroundColor: kBlueColor),
-                onPressed: () {},
+                onPressed: () {
+                  // copy the url of current document when share button clicked
+                  Clipboard.setData(ClipboardData(text: 'http://localhost:3000/#/document/${widget.id}'))
+                      .then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'url copied to clipboard',
+                        ),
+                      ),
+                    );
+                  });
+                },
                 icon: const Icon(
                   Icons.lock,
                   color: kWhiteColor,
@@ -130,9 +156,12 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
           padding: const EdgeInsets.symmetric(vertical: 9),
           child: Row(
             children: [
-              Image.asset(
-                'assets/images/docs_logo.png',
-                height: 40,
+              GestureDetector(
+                onTap: () => Routemaster.of(context).replace('/'),
+                child: Image.asset(
+                  'assets/images/docs_logo.png',
+                  height: 40,
+                ),
               ),
               const SizedBox(
                 width: 10,

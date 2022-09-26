@@ -1,5 +1,6 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
+const Document = require("../server/models/document");
 const authRouter = require("./routes/router");
 const http = require("http"); // http for connecting to server for scoket later
 const dbUrl = require("./hidden/db_url");
@@ -38,7 +39,20 @@ io.on("connection", (s) => {
     s.broadcast.to(data.room).emit("changes", data); // broadcast to all the users in the room
     // here we send data from server to client side
   });
+
+  s.on("save", (data) => {
+    saveData(data); // method to async save new document content to the database
+    // use broadcast to send to all the users in the room except current. io.to() to send to all the users in the room
+    // s.to() to send changes to current user only
+  });
 });
+
+// creating outside the "save" to make it look cleaner
+const saveData = async (data) => {
+  let document = await Document.findById(data.room); // get document by id as room and match value with map names of autoSave()
+  document.content = data.delta; // save the content of document as delta
+  document = await document.save();
+};
 
 // here "0.0.0.0" means it can be accessed from any device on the network
 server.listen(PORT, "0.0.0.0", () => console.log(`server has started on port ${PORT}`));
