@@ -91,4 +91,52 @@ class DocumentRepo {
     }
     return error;
   }
+
+  /// client method to update the title of the document
+  void updateTitle({required String token, required String id, required String title}) async {
+    await _client.post(
+      Uri.parse('$host/doc/title'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-auth-token': token,
+      },
+      body: jsonEncode(
+        {
+          'id': id,
+          'title': title,
+        },
+      ),
+    );
+  }
+
+  /// client method to update the content of the document
+  Future<ErrorModel> getDocumentById(String token, String id) async {
+    ErrorModel error = ErrorModel(
+      error: 'Document instance has not been created',
+      data: null,
+    );
+    try {
+      var res = await _client.get(
+        Uri.parse('$host/doc/$id'), // make sure it matches with document.js
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token,
+        },
+      );
+      switch (res.statusCode) {
+        case 200:
+          error =
+              ErrorModel(error: null, data: DocumentModel.fromJson(res.body)); // save the docs in the error model
+          debugPrint(res.body);
+          break;
+        default: // if any other status code
+          throw 'This Document does not exist, create a new one'; // throws error to catch block
+      }
+    } catch (e) {
+      error = ErrorModel(error: e.toString(), data: null);
+      debugPrint(e.toString());
+      debugPrint('catch block of document repo create document');
+    }
+    return error;
+  }
 }
