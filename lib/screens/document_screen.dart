@@ -6,6 +6,7 @@ import 'package:vdocs/models/document_model.dart';
 import 'package:vdocs/models/error_model.dart';
 import 'package:vdocs/repository/auth_repository.dart';
 import 'package:vdocs/repository/document_repo.dart';
+import 'package:vdocs/repository/socket_repo.dart';
 
 class DocumentScreen extends ConsumerStatefulWidget {
   final String id; // unique for each document
@@ -22,11 +23,13 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
   TextEditingController titleController = TextEditingController(text: 'Untitled Document');
   quill.QuillController quillController = quill.QuillController.basic();
   ErrorModel? errorModel; // for title and data of document
+  SocketRepo socketRepo = SocketRepo();
   // todo: make above items late
 
   @override
   void initState() {
     super.initState();
+    socketRepo.joinRoom(widget.id); // join room having id as documentId, before fetch as we make socket calls
     fetchDocumentData(); // method to show all changes made to the document
   }
 
@@ -36,6 +39,7 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
     titleController.dispose();
   }
 
+  /// client method to get changed data
   void fetchDocumentData() async {
     final token = ref.read(userProvider)!.token;
     errorModel = await ref.read(documentRepoProvider).getDocumentById(token, widget.id);
@@ -48,6 +52,7 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
     }
   }
 
+  /// client method to change title and call repo method to send data to server
   void updateTitle(WidgetRef ref, String title) async {
     final token = ref.read(userProvider)!.token;
     ref.watch(documentRepoProvider).updateTitle(token: token, id: widget.id, title: title);

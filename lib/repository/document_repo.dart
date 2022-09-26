@@ -20,6 +20,7 @@ class DocumentRepo {
     required Client client,
   }) : _client = client;
 
+  /// repo method to create a new document for user based on their token
   Future<ErrorModel> createDocument(String token) async {
     ErrorModel error = ErrorModel(
       error: 'Document instance has not been created',
@@ -55,6 +56,7 @@ class DocumentRepo {
     return error;
   }
 
+  /// repo method to get list of documents of given user based on their token
   Future<ErrorModel> getDocuments(String token) async {
     ErrorModel error = ErrorModel(
       error: 'Document instance has not been created',
@@ -92,7 +94,7 @@ class DocumentRepo {
     return error;
   }
 
-  /// client method to update the title of the document
+  /// repo method to update the title of the document
   void updateTitle({required String token, required String id, required String title}) async {
     await _client.post(
       Uri.parse('$host/doc/title'),
@@ -109,7 +111,7 @@ class DocumentRepo {
     );
   }
 
-  /// client method to update the content of the document
+  /// repo method to update the content of the document
   Future<ErrorModel> getDocumentById(String token, String id) async {
     ErrorModel error = ErrorModel(
       error: 'Document instance has not been created',
