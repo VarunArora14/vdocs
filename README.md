@@ -1,16 +1,12 @@
 # vdocs
 
-A new Flutter project.
+A full stack collaborative document creating and management application where users sign in through google and then see the documents asssociated to them which they can edit and work on together with help of quill package.
 
-## Getting Started
+It works both on web as well on android. Below is working demo of the app where 2 users work on same document.
 
-This project is a starting point for a Flutter application.
+### Working demo
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://user-images.githubusercontent.com/56734311/207430792-67169f73-9f67-44b3-adff-8897a45f84b5.mp4
+
